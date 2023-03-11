@@ -31,4 +31,4 @@ systemctl daemon-reload
 systemctl enable clash --now
 ```
 5. 在系统代理中加入对应服务器
-    - KDE：网络设置 -> 代理 -> 使用系统代理服务器配置 -> 配置 http 和 socks 代理
+    - KDE：设置 -> 网络设置 -> 代理 -> 使用系统代理服务器配置 -> 配置 http 和 socks 代理
