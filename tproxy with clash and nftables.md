@@ -7,6 +7,7 @@
 - [Clash Wiki](https://github.com/Dreamacro/clash/wiki/Configuration)
 - [nftables for redir proxy](https://gist.github.com/codehz/db39a6d5732ccbd6343f277b78f1eb19)
 - [rocka/nft-transproxy](https://github.com/rocka/nft-transproxy)
+- [Man of NFT](https://www.netfilter.org/projects/nftables/manpage.html#lbAS)
 
 ```nft
 #!/bin/nft -f
