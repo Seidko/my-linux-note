@@ -49,9 +49,15 @@ table inet proxy {
 	}
 
 }
-
 ```
-
+## 网络流程
+```mermaid
+flowchart TD
+	lp[local process] --> mo[mangle output] --> ju{Is Clash user send?} --> |no| mk[mark set 0x233] --> redir[iproute2 redirect to input] --> |has fwmark 0x233| mp["mangle prerouting"]  -->  jm{Has fwmark 0x233?} --> |yes| tp[transparent proxy to Clash] --> mo
+	ju --> |yes| io[interface output]
+	jm --> |no| io
+	ip[Input package] --> |no fwmark 0x233| mp
+```
 ## systemd service
 ```ini
 [Unit]
