@@ -1,8 +1,9 @@
-## 通过配置 Clash 和 NetfilterTable 来配置透明代理
-nft规则，已经不太想说什么了，说多了都是泪啊！
+# 通过配置 Clash 和 NetfilterTable 来配置透明代理
+### nft规则
+已经不太想说什么了，说多了都是泪啊！
 
 ```nft
-#!/usr/sbin/nft -f
+#!/bin/nft -f
 
 flush ruleset
 
@@ -25,55 +26,29 @@ fe80::/10,
 ff00::/8,
 }
 
-table ip mangle {
+table inet proxy {
 	chain filter {
 		ip daddr $private_list accept
-    	socket transparent 1 accept
-		meta skuid clash accept
-		return
-	}
-
-	chain output {
-		type route hook output priority mangle; policy accept;
-		jump filter
-		meta mark set 0x233
-	}
-
-	chain prerouting {
-		type filter hook prerouting priority mangle; policy accept;
-		jump filter
-    	meta l4proto { tcp, udp } mark 0x233 tproxy to :7891
-	}
-}
-
-table ip6 mangle {
-	chain filter {
 		ip6 daddr $private_list6 accept
-    	socket transparent 1 accept
-		meta skuid clash accept
 		return
 	}
 
 	chain output {
 		type route hook output priority mangle; policy accept;
+		meta skuid clash accept
+		socket transparent 1 accept
 		jump filter
 		meta mark set 0x233
 	}
 
-	chain prerouting {
+	chain mangle-prerouting {
 		type filter hook prerouting priority mangle; policy accept;
 		jump filter
-    	meta l4proto { tcp, udp } mark 0x233 tproxy to :7891
+    	meta l4proto { tcp, udp } mark 0x233 tproxy ip to 127.0.0.1:7891
+    	meta l4proto { tcp, udp } mark 0x233 tproxy ip6 to ::1:7891
 	}
-}
-```
 
-```mermaid
-flowchart TD
-	lp[local process] --> mo[mangle output] --> ju{Is Clash user send?} --> |no| mk[mark set 0x233] --> redir[iproute2 redirect to input] --> |has fwmark 0x233| mp["mangle prerouting"]  -->  jm{Has fwmark 0x233?} --> |yes| tp[transparent proxy to Clash] --> mo
-	ju --> |yes| io[interface output]
-	jm --> |no| io
-	ip[Input package] --> |no fwmark 0x233| mp
+}
 
 ```
 
