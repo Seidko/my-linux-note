@@ -30,46 +30,45 @@ systemctl enable --now clash-tproxy.service
 flush ruleset
 
 define private_list = {
-0.0.0.0/8,
-10.0.0.0/8,
-127.0.0.0/8,
-169.254.0.0/16,
-172.16.0.0/12,
-192.168.0.0/16,
-224.0.0.0/4,
-240.0.0.0/4,
+  0.0.0.0/8,
+  10.0.0.0/8,
+  127.0.0.0/8,
+  169.254.0.0/16,
+  172.16.0.0/12,
+  192.168.0.0/16,
+  224.0.0.0/4,
+  240.0.0.0/4,
 }
 
 define private_list6 = {
-::/128,
-::1/128,
-fc00::/7,
-fe80::/10,
-ff00::/8,
+  ::/128,
+  ::1/128,
+  fc00::/7,
+  fe80::/10,
+  ff00::/8,
 }
 
 table inet proxy {
-	chain filter {
-		ip daddr $private_list accept
-		ip6 daddr $private_list6 accept
-		return
-	}
+  chain filter {
+    ip daddr $private_list accept
+    ip6 daddr $private_list6 accept
+    return
+  }
 
-	chain output {
-		type route hook output priority mangle; policy accept;
-		meta skuid clash accept
-		socket transparent 1 accept
-		jump filter
-		meta mark set 0x233
-	}
+  chain output {
+    type route hook output priority mangle; policy accept;
+    meta skuid clash accept
+    socket transparent 1 accept
+    jump filter
+    meta mark set 0x233
+  }
 
-	chain mangle-prerouting {
-		type filter hook prerouting priority mangle; policy accept;
-		jump filter
-    	meta l4proto { tcp, udp } mark 0x233 tproxy ip to 127.0.0.1:7891
-    	meta l4proto { tcp, udp } mark 0x233 tproxy ip6 to ::1:7891
-	}
-
+  chain mangle-prerouting {
+    type filter hook prerouting priority mangle; policy accept;
+    jump filter
+    meta l4proto { tcp, udp } mark 0x233 tproxy ip to 127.0.0.1:7891
+    meta l4proto { tcp, udp } mark 0x233 tproxy ip6 to ::1:7891
+  }
 }
 ```
 
