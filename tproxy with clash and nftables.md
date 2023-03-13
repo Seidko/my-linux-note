@@ -3,10 +3,10 @@
 已经不太想说什么了，说多了都是泪啊！
 
 参考：
-[Packet flow in Netfilter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)
-[Clash Wiki](https://github.com/Dreamacro/clash/wiki/Configuration)
-[nftables for redir proxy](https://gist.github.com/codehz/db39a6d5732ccbd6343f277b78f1eb19)
-[rocka/nft-transproxy](https://github.com/rocka/nft-transproxy)
+- [Packet flow in Netfilter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)
+- [Clash Wiki](https://github.com/Dreamacro/clash/wiki/Configuration)
+- [nftables for redir proxy](https://gist.github.com/codehz/db39a6d5732ccbd6343f277b78f1eb19)
+- [rocka/nft-transproxy](https://github.com/rocka/nft-transproxy)
 
 ```nft
 #!/bin/nft -f
