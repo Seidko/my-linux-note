@@ -86,7 +86,7 @@ After=network-online.target
 
 [Service]
 # start
-ExecStartPre=setcap CAP_NET_ADMIN=eip /bin/clash # 坑点1：缺少`CAP_NET_ADMIN`权限，需要在这里允许。
+ExecStartPre=setcap "CAP_NET_BIND_SERVICE+ep CAP_NET_ADMIN+ep" /bin/clash # 坑点1：缺少`CAP_NET_ADMIN`和`CAP_NET_BIND_SERVICE`权限，需要在这里允许。
 ExecStartPre=/usr/local/lib/nft-transproxy/transproxy.nft
 ExecStartPre=ip rule add fwmark 0x233 lookup 100
 ExecStartPre=ip route add local 0.0.0.0/0 dev lo table 100
@@ -111,4 +111,6 @@ WantedBy=multi-user.target
 目前 clash 配置文件中最核心的部分就是这里了：
 ```yaml
 tproxy-port: 7891
+dns:
+	listen: 0.0.0.0:53
 ```
