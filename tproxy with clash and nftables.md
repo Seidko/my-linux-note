@@ -5,12 +5,14 @@
 3. 创建 `clash` 用户，可通过 `useradd -m -s /usr/bin/nologin clash` 创建。
 4. 从服务商下载配置文件或者自己动手写配置文件，[并修改这些配置。](#clash-配置文件)
 5. 创建 [systemd unit](#systemd-service)，可以按自己的情况进行修改
-6. 运行下列命令：
+6. 创建文件 `/etc/NetworkManager/conf.d/dns-servers.conf`，向文件中加入[这些内容。](#dns-配置)
+7. 由 root 运行下列命令：
 ```sh
+systemctl restart NetworkManager
 systemctl daemon-reload
 systemctl enable --now clash-tproxy.service
 ```
-7. 现在透明代理就配置好了！
+8. 现在透明代理就配置好了！
 
 ### nft规则
 已经不太想说什么了，说多了都是泪啊！
@@ -70,7 +72,13 @@ table inet proxy {
 
 }
 ```
+
 ## 网络流程
+
+数据包的流程。
+
+[参考](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)
+
 ```mermaid
 flowchart TD
 	lp[local process] --> mo[mangle output] --> ju{Is Clash user send?} --> |no| mk[mark set 0x233] --> redir[iproute2 redirect to input] --> |has fwmark 0x233| mp["mangle prerouting"]  -->  jm{Has fwmark 0x233?} --> |yes| tp[transparent proxy to Clash] --> mo
@@ -78,7 +86,20 @@ flowchart TD
 	jm --> |no| io
 	ip[Input package] --> |no fwmark 0x233| mp
 ```
+
+## dns 配置
+
+`/etc/NetworkManager/conf.d/dns-servers.conf` 中的配置，持久化的自定义 DNS 服务器。
+
+```ini
+[global-dns-domain-*]
+servers=127.0.0.1,::1
+```
+
 ## systemd service
+
+整个服务的 service unit。
+
 ```ini
 [Unit]
 Description=Clash with nftables proxy
@@ -108,9 +129,39 @@ WantedBy=multi-user.target
 ```
 
 ### clash 配置文件
-目前 clash 配置文件中最核心的部分就是这里了：
+clash 配置文件中最重要的就是两个部分：`tproxy` 端口和 `dns` 配置。
+`tproxy-port` 接收所有的流量并转发，`dns` 创建一个 DNS 服务器并让系统使用。
 ```yaml
-tproxy-port: 7891
+tproxy-port: 7891 # tproxy 端口
 dns:
-	listen: 0.0.0.0:53
+  enable: true
+  listen: 0.0.0.0:53
+  ipv6: true
+  nameserver:
+    - 192.168.1.1 # 写上你路由器的DNS服务地址
+    - 119.28.28.28
+    - 223.5.5.5
+    - 119.29.29.29
+  fallback:
+    - https://doh.buzz:8000/dns-query
+    - https://doh.beauty:8000/dns-query
+    - https://cloudflare-dns.com/dns-query
+    - tls://1.1.1.1:853
+    - tls://1.0.0.1:853
+    - https://1.1.1.1/dns-query
+    - https://1.0.0.1/dns-query
+    - tls://8.8.8.8:853
+    - tls://8.8.4.4:853
+    - https://dns.google/dns-query
+    - https://dns.twnic.tw/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
+    domain:
+      - +.google.com
+      - +.facebook.com
+      - +.youtube.com
+  nameserver-policy: ~
 ```
