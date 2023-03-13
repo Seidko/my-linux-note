@@ -1,4 +1,17 @@
-# 通过配置 Clash 和 NetfilterTable 来配置透明代理
+# 通过配置 Clash 和 Nftables 来配置透明代理
+### 配置方法
+1. 安装 `nftables` 包，可通过 `pacman -S iptables-nft` 来安装 `nftables` 并卸载 `iptables` 以避免冲突。
+2. 安装 `clash` 包，可通过 `pacman -S clash` 安装。
+3. 创建 `clash` 用户，可通过 `useradd -m -s /usr/bin/nologin clash` 创建。
+4. 从服务商下载配置文件或者自己动手写配置文件，[并修改这些配置。](#clash-配置文件)
+5. 创建 [systemd unit](#systemd-service)，可以按自己的情况进行修改
+6. 运行下列命令：
+```sh
+systemctl daemon-reload
+systemctl enable --now clash-tproxy.service
+```
+7. 现在透明代理就配置好了！
+
 ### nft规则
 已经不太想说什么了，说多了都是泪啊！
 
@@ -94,6 +107,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
+### clash 配置文件
 目前 clash 配置文件中最核心的部分就是这里了：
 ```yaml
 tproxy-port: 7891
