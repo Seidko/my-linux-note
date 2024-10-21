@@ -3,20 +3,18 @@
 1. 安装 `nftables` 包，可通过 `pacman -S iptables-nft` 来安装 `nftables` 并卸载 `iptables` 以避免冲突。
 2. 安装 `clash` 包，可通过 `pacman -S clash` 安装。
 3. 创建 `clash` 用户，可通过 `useradd -m -s /usr/bin/nologin clash` 创建。
-4. 从服务商下载配置文件或者自己动手写配置文件，[并修改这些配置。](#clash-配置文件)
-5. 创建 [systemd unit](#systemd-service)，可以按自己的情况进行修改
-6. 创建文件 `/etc/NetworkManager/conf.d/dns-servers.conf`，向文件中加入[这些内容。](#dns-配置)
-7. 由 root 运行下列命令：
+4. 为 `clash` 可执行文件设置 Capabilities `sudo setcap cap_net_bind_service,cap_net_admin+ep $(which clash)`
+5. 从服务商下载配置文件或者自己动手写配置文件，[并修改这些配置。](#clash-配置文件)
+6. 创建 [systemd unit](#systemd-service)，可以按自己的情况进行修改
+7. 创建文件 `/etc/NetworkManager/conf.d/dns-servers.conf`，向文件中加入[这些内容。](#dns-配置)
+8. 由 root 运行下列命令：
 ```sh
 systemctl restart NetworkManager
 systemctl daemon-reload
 systemctl enable --now clash-tproxy.service
 ```
-8. 现在透明代理就配置好了！
 
 ### nft规则
-已经不太想说什么了，说多了都是泪啊！
-
 参考：
 - [Packet flow in Netfilter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)
 - [Clash Wiki](https://github.com/Dreamacro/clash/wiki/Configuration)
